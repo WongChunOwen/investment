@@ -1,0 +1,206 @@
+---
+title: Week 03 Lab Learning Notes -- 'PostgreSQL' Queries for Joining Tables
+author: Owen
+date: 2024-05-21
+date-format: "dddd MMM D, YYYY"
+
+format: 
+  html:
+    toc: true
+    toc-depth: 3
+    toc-location: left
+    number-sections: true
+    number-depth: 3
+---
+
+```{r}
+#| label: setup
+#| include: false
+
+library(knitr)
+library(kableExtra)
+library(DBI)
+con <- dbConnect(odbc::odbc(), dsn="investments", timeout = 10)
+
+
+```
+## Inner Joins
+### Inner Joins for One-to-One Relationships
+Here we have 2 tables
+
+```{r echo=FALSE}
+query <- "SELECT * FROM shareholders;"
+
+data <- dbGetQuery(con, query)
+knitr::kable(data,caption = "Table 1: Shareholder information")
+
+query <- "SELECT * FROM traded_companies;"
+
+data <- dbGetQuery(con, query)
+knitr::kable(data,caption = "Table 2: Companies traded on the stock market")
+
+query <- "SELECT
+    sh.sh_holder_id,
+    sh.sh_holder_name,
+    tc.comp_id
+FROM shareholders AS sh
+INNER JOIN traded_companies AS tc
+    ON sh.sh_holder_name = tc.comp_name
+ORDER BY sh.sh_holder_id;"
+
+data <- dbGetQuery(con, query)
+knitr::kable(data,caption = "2 records")
+```
+
+
+
+### Inner Joins for One-to-Many Relationships
+We have another table
+
+```{r echo=FALSE}
+query <- "SELECT * FROM products;"
+
+data <- dbGetQuery(con, query)
+knitr::kable(data,caption = "Table 3: Information on products sold by the companies in the traded_companies table")
+```
+```{r echo=FALSE}
+query <- "SELECT
+    tc.comp_name,
+    tc.comp_id,
+    pr.prod_name
+FROM traded_companies AS tc
+INNER JOIN products AS pr
+    ON tc.comp_id = pr.comp_id
+ORDER BY tc.comp_id;"
+
+data <- dbGetQuery(con, query)
+knitr::kable(data,caption = "7 records")
+```
+### Inner Joins for Many-to-Many Relationships
+```{r echo=FALSE}
+query <- "SELECT
+    sh.sh_holder_name,
+    sh.country,
+    tc.comp_name
+FROM shareholders AS sh
+INNER JOIN traded_companies AS tc
+    ON sh.country = tc.country
+ORDER BY sh.sh_holder_id, tc.comp_id;"
+
+data <- dbGetQuery(con, query)
+knitr::kable(data,caption = "9 records")
+```
+## Outer Joins
+### Left Joins
+```{r echo=FALSE}
+query <- "SELECT
+    sh.sh_holder_name,
+    sh.country,
+    tc.comp_name
+FROM shareholders AS sh
+LEFT JOIN traded_companies AS tc
+    ON sh.country = tc.country
+ORDER BY sh.sh_holder_id, tc.comp_id;"
+
+data <- dbGetQuery(con, query)
+knitr::kable(data,caption = "11 records")
+```
+### Right Joins
+```{r echo=FALSE}
+query <- "SELECT
+    sh.sh_holder_name,
+    tc.country,
+    tc.comp_name
+FROM shareholders AS sh
+RIGHT JOIN traded_companies AS tc
+    ON sh.country = tc.country
+ORDER BY sh.sh_holder_id, tc.comp_id;"
+
+data <- dbGetQuery(con, query)
+knitr::kable(data,caption = "11 records")
+```
+### Full Outer Joins
+```{r echo=FALSE}
+query <- "SELECT
+    sh.sh_holder_name,
+    tc.comp_name,
+    COALESCE(sh.country, tc.country) AS country
+FROM shareholders AS sh
+FULL OUTER JOIN traded_companies AS tc
+    ON sh.country = tc.country
+ORDER BY sh.sh_holder_id, tc.comp_id;"
+
+data <- dbGetQuery(con, query)
+knitr::kable(data,caption = "14 records")
+```
+## Filtering Joins
+### Filter Joins
+```{r echo=FALSE}
+query <- "SELECT
+    sh_holder_name,
+    country
+FROM shareholders
+WHERE country IN (
+    SELECT country
+    FROM traded_companies
+)
+ORDER BY sh_holder_id;"
+
+data <- dbGetQuery(con, query)
+knitr::kable(data,caption = "6 records")
+```
+### Anti-Joins
+```{r echo=FALSE}
+query <- "SELECT
+    sh_holder_name,
+    country
+FROM shareholders
+WHERE country NOT IN (
+    SELECT country
+    FROM traded_companies
+)
+ORDER BY sh_holder_id;"
+
+data <- dbGetQuery(con, query)
+knitr::kable(data,caption = "2 records")
+```
+## Exercises — Switching Tables in Filtering Joins
+a. In [Section 3.1](### Filter Joins), a semi-join was performed based on the country column with shareholders as the left table and traded_companies as the right table. What would happen if the tables were switched?
+
+Answer: it will produced a different table
+
+Result:
+```{r echo=FALSE}
+query <- "SELECT
+    comp_id,
+    country
+FROM traded_companies
+WHERE country IN (
+    SELECT country
+    FROM shareholders
+)
+ORDER BY comp_id;"
+
+data <- dbGetQuery(con, query)
+knitr::kable(data,caption = "6 records")
+```
+b. Repeat the exercise for the anti-join in [Section 3.2](### Anti-Joins)
+
+Result:
+```{r echo=FALSE}
+query <- "SELECT
+    comp_id,
+    country
+FROM traded_companies
+WHERE country NOT IN (
+    SELECT country
+    FROM shareholders
+)
+ORDER BY comp_id;"
+
+data <- dbGetQuery(con, query)
+knitr::kable(data,caption = "3 records")
+```
+
+
+
