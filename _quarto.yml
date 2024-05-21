@@ -8,6 +8,8 @@ website:
     left:
       - href: week_01_lab_note.qmd
         text: Week 1
+      - href: week_02_lab_note.qmd
+        text: Week 2
       - href: week_03_lab_note.qmd
         text: Week 3
 
