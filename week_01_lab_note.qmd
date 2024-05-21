@@ -1,0 +1,23 @@
+---
+title: "My First Quarto Document"
+author: Wong Chun Owen
+format:
+  html:
+    toc: true
+---
+
+# Introduction
+
+This is my first `Quarto` document. It is a simple HTML page with a table of contents.
+
+## Section 1
+
+This is the first section of the document.
+
+## Section 2
+
+This is the second section of the document.
+
+# The End of Toy Example
+
+This is the end of the toy example.

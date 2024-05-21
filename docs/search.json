@@ -33,5 +33,26 @@
     "title": "Week 03 Lab Learning Notes – ‘PostgreSQL’ Queries for Joining Tables",
     "section": "4 Exercises — Switching Tables in Filtering Joins",
     "text": "4 Exercises — Switching Tables in Filtering Joins\n\nIn Section 3.1, a semi-join was performed based on the country column with shareholders as the left table and traded_companies as the right table. What would happen if the tables were switched?\n\nAnswer: it will produced a different table\nResult:\n\n\n\n6 records\n\n\ncomp_id\ncountry\n\n\n\n\n1\nSingapore\n\n\n2\nIndia\n\n\n3\nCanada\n\n\n4\nSingapore\n\n\n6\nAustralia\n\n\n7\nCanada\n\n\n\n\n\n\nRepeat the exercise for the anti-join in Section 3.2\n\nResult:\n\n\n\n3 records\n\n\ncomp_id\ncountry\n\n\n\n\n5\nUnited Kingdom\n\n\n8\nSwitzerland\n\n\n9\nSwitzerland"
+  },
+  {
+    "objectID": "week_01_lab_note.html",
+    "href": "week_01_lab_note.html",
+    "title": "My First Quarto Document",
+    "section": "",
+    "text": "This is my first Quarto document. It is a simple HTML page with a table of contents.\n\n\nThis is the first section of the document.\n\n\n\nThis is the second section of the document."
+  },
+  {
+    "objectID": "week_01_lab_note.html#section-1",
+    "href": "week_01_lab_note.html#section-1",
+    "title": "My First Quarto Document",
+    "section": "",
+    "text": "This is the first section of the document."
+  },
+  {
+    "objectID": "week_01_lab_note.html#section-2",
+    "href": "week_01_lab_note.html#section-2",
+    "title": "My First Quarto Document",
+    "section": "",
+    "text": "This is the second section of the document."
   }
 ]
