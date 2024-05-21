@@ -38,20 +38,21 @@ query <- "SELECT * FROM traded_companies;"
 
 data <- dbGetQuery(con, query)
 knitr::kable(data,caption = "Table 2: Companies traded on the stock market")
+```
+```{sql}
+#| connection: con
+#| eval: true
+#| echo: false
 
-query <- "SELECT
+SELECT
     sh.sh_holder_id,
     sh.sh_holder_name,
     tc.comp_id
 FROM shareholders AS sh
 INNER JOIN traded_companies AS tc
     ON sh.sh_holder_name = tc.comp_name
-ORDER BY sh.sh_holder_id;"
-
-data <- dbGetQuery(con, query)
-knitr::kable(data,caption = "2 records")
+ORDER BY sh.sh_holder_id;
 ```
-
 
 
 ### Inner Joins for One-to-Many Relationships
@@ -63,80 +64,90 @@ query <- "SELECT * FROM products;"
 data <- dbGetQuery(con, query)
 knitr::kable(data,caption = "Table 3: Information on products sold by the companies in the traded_companies table")
 ```
-```{r echo=FALSE}
-query <- "SELECT
+```{sql}
+#| connection: con
+#| eval: true
+#| echo: false
+
+SELECT
     tc.comp_name,
     tc.comp_id,
     pr.prod_name
 FROM traded_companies AS tc
 INNER JOIN products AS pr
     ON tc.comp_id = pr.comp_id
-ORDER BY tc.comp_id;"
-
-data <- dbGetQuery(con, query)
-knitr::kable(data,caption = "7 records")
+ORDER BY tc.comp_id;
 ```
+
 ### Inner Joins for Many-to-Many Relationships
-```{r echo=FALSE}
-query <- "SELECT
+```{sql}
+#| connection: con
+#| eval: true
+#| echo: false
+
+SELECT
     sh.sh_holder_name,
     sh.country,
     tc.comp_name
 FROM shareholders AS sh
 INNER JOIN traded_companies AS tc
     ON sh.country = tc.country
-ORDER BY sh.sh_holder_id, tc.comp_id;"
-
-data <- dbGetQuery(con, query)
-knitr::kable(data,caption = "9 records")
+ORDER BY sh.sh_holder_id, tc.comp_id;
 ```
 ## Outer Joins
 ### Left Joins
-```{r echo=FALSE}
-query <- "SELECT
+```{sql}
+#| connection: con
+#| eval: true
+#| echo: false
+
+SELECT
     sh.sh_holder_name,
     sh.country,
     tc.comp_name
 FROM shareholders AS sh
 LEFT JOIN traded_companies AS tc
     ON sh.country = tc.country
-ORDER BY sh.sh_holder_id, tc.comp_id;"
-
-data <- dbGetQuery(con, query)
-knitr::kable(data,caption = "11 records")
+ORDER BY sh.sh_holder_id, tc.comp_id;
 ```
 ### Right Joins
-```{r echo=FALSE}
-query <- "SELECT
+```{sql}
+#| connection: con
+#| eval: true
+#| echo: false
+
+SELECT
     sh.sh_holder_name,
     tc.country,
     tc.comp_name
 FROM shareholders AS sh
 RIGHT JOIN traded_companies AS tc
     ON sh.country = tc.country
-ORDER BY sh.sh_holder_id, tc.comp_id;"
-
-data <- dbGetQuery(con, query)
-knitr::kable(data,caption = "11 records")
+ORDER BY sh.sh_holder_id, tc.comp_id;
 ```
 ### Full Outer Joins
-```{r echo=FALSE}
-query <- "SELECT
+```{sql}
+#| connection: con
+#| eval: true
+#| echo: false
+
+SELECT
     sh.sh_holder_name,
     tc.comp_name,
     COALESCE(sh.country, tc.country) AS country
 FROM shareholders AS sh
 FULL OUTER JOIN traded_companies AS tc
     ON sh.country = tc.country
-ORDER BY sh.sh_holder_id, tc.comp_id;"
-
-data <- dbGetQuery(con, query)
-knitr::kable(data,caption = "14 records")
+ORDER BY sh.sh_holder_id, tc.comp_id;
 ```
 ## Filtering Joins
 ### Filter Joins
-```{r echo=FALSE}
-query <- "SELECT
+```{sql}
+#| connection: con
+#| eval: true
+#| echo: false
+
+SELECT
     sh_holder_name,
     country
 FROM shareholders
@@ -144,14 +155,15 @@ WHERE country IN (
     SELECT country
     FROM traded_companies
 )
-ORDER BY sh_holder_id;"
-
-data <- dbGetQuery(con, query)
-knitr::kable(data,caption = "6 records")
+ORDER BY sh_holder_id;
 ```
 ### Anti-Joins
-```{r echo=FALSE}
-query <- "SELECT
+```{sql}
+#| connection: con
+#| eval: true
+#| echo: false
+
+SELECT
     sh_holder_name,
     country
 FROM shareholders
@@ -159,10 +171,7 @@ WHERE country NOT IN (
     SELECT country
     FROM traded_companies
 )
-ORDER BY sh_holder_id;"
-
-data <- dbGetQuery(con, query)
-knitr::kable(data,caption = "2 records")
+ORDER BY sh_holder_id;
 ```
 ## Exercises — Switching Tables in Filtering Joins
 a. In [Section 3.1](### Filter Joins), a semi-join was performed based on the country column with shareholders as the left table and traded_companies as the right table. What would happen if the tables were switched?
@@ -170,8 +179,12 @@ a. In [Section 3.1](### Filter Joins), a semi-join was performed based on the co
 Answer: it will produced a different table
 
 Result:
-```{r echo=FALSE}
-query <- "SELECT
+```{sql}
+#| connection: con
+#| eval: true
+#| echo: false
+
+SELECT
     comp_id,
     country
 FROM traded_companies
@@ -179,16 +192,17 @@ WHERE country IN (
     SELECT country
     FROM shareholders
 )
-ORDER BY comp_id;"
-
-data <- dbGetQuery(con, query)
-knitr::kable(data,caption = "6 records")
+ORDER BY comp_id;
 ```
 b. Repeat the exercise for the anti-join in [Section 3.2](### Anti-Joins)
 
 Result:
-```{r echo=FALSE}
-query <- "SELECT
+```{sql}
+#| connection: con
+#| eval: true
+#| echo: false
+
+SELECT
     comp_id,
     country
 FROM traded_companies
@@ -196,10 +210,7 @@ WHERE country NOT IN (
     SELECT country
     FROM shareholders
 )
-ORDER BY comp_id;"
-
-data <- dbGetQuery(con, query)
-knitr::kable(data,caption = "3 records")
+ORDER BY comp_id
 ```
 
 
