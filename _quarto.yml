@@ -7,7 +7,7 @@ website:
   navbar:
     left:
       - href: week_03_lab_note.qmd
-        text: Home
+        text: Week 3
 
 format:
   html:
