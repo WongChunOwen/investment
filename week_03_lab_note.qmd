@@ -7,10 +7,10 @@ date-format: "dddd MMM D, YYYY"
 format: 
   html:
     toc: true
-    toc-depth: 3
+    toc-depth: 5
     toc-location: left
     number-sections: true
-    number-depth: 3
+    number-depth: 5
 ---
 
 ```{r}
