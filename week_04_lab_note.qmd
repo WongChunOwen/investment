@@ -1,7 +1,7 @@
 ---
-title: Week 03 Lab Learning Notes -- 'PostgreSQL' Queries for Joining Tables
+title: Week 04 Lab Lab Notes -- Sample 'PostgreSQL' questions Queries for Joining Tables
 author: Owen
-date: 2024-05-21
+date: 2024-05-24
 date-format: "dddd MMM D, YYYY"
 
 format: 
