@@ -1,0 +1,322 @@
+---
+title: Week 03 Lab Learning Notes -- 'PostgreSQL' Queries for Joining Tables
+author: Owen
+date: 2024-05-21
+date-format: "dddd MMM D, YYYY"
+
+format: 
+  html:
+    toc: true
+    toc-depth: 5
+    toc-location: left
+    number-sections: true
+    number-depth: 5
+---
+
+```{r}
+#| label: setup
+#| include: false
+
+library(knitr)
+library(kableExtra)
+library(DBI)
+con <- dbConnect(odbc::odbc(), dsn="NYC", timeout = 10)
+
+
+```
+1. List all flights that were delayed more than 30 minutes on departure.
+
+```{sql}
+#| connection: con
+#| eval: true
+#| echo: true
+
+SELECT *
+FROM flights
+WHERE dep_delay > 30;
+```
+
+2. Retrieve the flight number, carrier name, and destination airport for all flights that departed from EWR (Newark Liberty International Airport).
+
+```{sql}
+#| connection: con
+#| eval: true
+#| echo: true
+
+SELECT f.flight, a.name, f.dest
+FROM flights f
+JOIN airlines a ON f.carrier = a.carrier
+WHERE origin = 'EWR';
+
+```
+
+3. Find the average arrival delay for each carrier.
+
+```{sql}
+#| connection: con
+#| eval: true
+#| echo: true
+
+SELECT carrier, AVG(arr_delay) AS avg_arr_delay
+FROM flights
+GROUP BY carrier;
+```
+
+4. List the tail number, manufacturer, and model of planes that have flights departing from LGA (LaGuardia Airport).
+
+```{sql}
+#| connection: con
+#| eval: true
+#| echo: true
+
+SELECT DISTINCT p.tailnum, p.manufacturer, p.model
+FROM flights f
+JOIN planes p ON f.tailnum = p.tailnum
+WHERE f.origin = 'LGA';
+```
+
+5. Retrieve the flight number, origin, destination, and the name of the destination airport for flights that traveled more than 1000 miles.
+
+```{sql}
+#| connection: con
+#| eval: true
+#| echo: true
+
+SELECT f.flight, f.origin, f.dest, a.name AS destination_airport_name
+FROM flights f
+JOIN airports a ON f.dest = a.faa
+WHERE f.distance > 1000;
+```
+
+6. Find all planes that are in the planes table but did not have any recorded flights in the flights table.
+
+```{sql}
+#| connection: con
+#| eval: true
+#| echo: true
+
+SELECT p.tailnum, p.manufacturer, p.model
+FROM planes p
+LEFT JOIN flights f ON p.tailnum = f.tailnum
+WHERE f.tailnum IS NULL;
+```
+
+7. For each day, count the number of flights that were scheduled to depart.
+
+```{sql}
+#| connection: con
+#| eval: true
+#| echo: true
+
+SELECT DATE_TRUNC('day', time_hour) AS day, COUNT(*) AS num_flights
+FROM flights
+GROUP BY DATE_TRUNC('day', time_hour)
+ORDER BY day;
+```
+
+8. List the flights along with their corresponding weather conditions at the origin airport for January 1, 2013.
+
+```{sql}
+#| connection: con
+#| eval: true
+#| echo: true
+
+SELECT f.flight, f.origin, w.temp, w.precip, w.wind_speed
+FROM flights f
+JOIN weather w ON f.origin = w.origin AND f.year = w.year AND f.month = w.month AND f.day = w.day AND f.hour = w.hour
+WHERE f.year = 2013 AND f.month = 1 AND f.day = 1;
+```
+
+9.  Find the carriers that have an average departure delay of more than 10 minutes. Find the carriers that have an average departure delay of more than 10 minutes.
+
+```{sql}
+#| connection: con
+#| eval: true
+#| echo: true
+
+SELECT carrier, AVG(dep_delay) AS avg_dep_delay
+FROM flights
+GROUP BY carrier
+HAVING AVG(dep_delay) > 10;
+```
+
+10. Retrieve the flight number, departure time, scheduled departure time, and manufacturer of planes that departed with a delay of more than 60 minutes.
+
+```{sql}
+#| connection: con
+#| eval: true
+#| echo: true
+
+SELECT f.flight, f.dep_time, f.sched_dep_time, p.manufacturer
+FROM flights f
+JOIN planes p ON f.tailnum = p.tailnum
+WHERE f.dep_delay > 60;
+```
+
+11. List all flights that departed after the average departure time on January 1, 2013.
+
+```{sql}
+#| connection: con
+#| eval: true
+#| echo: true
+
+SELECT *
+FROM flights
+WHERE dep_time > (
+    SELECT AVG(dep_time)
+    FROM flights
+    WHERE year = 2013 AND month = 1 AND day = 1
+) AND year = 2013 AND month = 1 AND day = 1;
+```
+
+12. Retrieve the names of carriers that had flights departing from EWR with a delay greater than the average departure delay of all flights from EWR.
+
+```{sql}
+#| connection: con
+#| eval: true
+#| echo: true
+
+WITH avg_dep_delay_ewr AS (
+    SELECT AVG(dep_delay) AS avg_dep_delay
+    FROM flights
+    WHERE origin = 'EWR'
+)
+SELECT DISTINCT a.name AS carrier_name
+FROM flights f
+JOIN avg_dep_delay_ewr avg ON f.dep_delay > avg.avg_dep_delay
+JOIN airlines a ON f.carrier = a.carrier
+WHERE f.origin = 'EWR';
+
+```
+
+13. List the flight number, origin, and the maximum departure delay for flights on the same day.
+
+```{sql}
+#| connection: con
+#| eval: true
+#| echo: true
+
+SELECT flight, origin, MAX(dep_delay) AS max_dep_delay
+FROM flights
+GROUP BY year, month, day, flight, origin;
+```
+
+
+14. Find all flights that had a departure delay greater than the average departure delay of their respective carrier.
+
+```{sql}
+#| connection: con
+#| eval: true
+#| echo: true
+
+WITH avg_dep_delay_per_carrier AS (
+    SELECT carrier, AVG(dep_delay) AS avg_dep_delay
+    FROM flights
+    GROUP BY carrier
+)
+SELECT f.*
+FROM flights f
+JOIN avg_dep_delay_per_carrier ad
+ON f.carrier = ad.carrier
+WHERE f.dep_delay > ad.avg_dep_delay;
+
+```
+15. For each carrier, find the average arrival delay and list carriers that have an average arrival delay of more than 10 minutes.
+
+```{sql}
+#| connection: con
+#| eval: true
+#| echo: true
+
+SELECT carrier, avg_arr_delay
+FROM (
+    SELECT carrier, AVG(arr_delay) AS avg_arr_delay
+    FROM flights
+    GROUP BY carrier
+) AS avg_delays
+WHERE avg_arr_delay > 10;
+```
+
+16. List the tail numbers of planes that have flown more than the average distance of all flights.
+
+```{sql}
+#| connection: con
+#| eval: true
+#| echo: true
+
+SELECT DISTINCT tailnum
+FROM flights
+WHERE distance > (
+    SELECT AVG(distance)
+    FROM flights
+);
+```
+
+17. Find all flights that have corresponding weather data with a temperature higher than 80°F at the origin airport.
+
+```{sql}
+#| connection: con
+#| eval: true
+#| echo: true
+
+SELECT *
+FROM flights f
+WHERE EXISTS (
+    SELECT 1
+    FROM weather w
+    WHERE f.origin = w.origin AND f.year = w.year AND f.month = w.month AND f.day = w.day AND w.temp > 80
+);
+```
+
+18. List carriers that have more than 100 flights with departure delays.
+
+```{sql}
+#| connection: con
+#| eval: true
+#| echo: true
+
+SELECT carrier, COUNT(*) AS num_flights
+FROM flights
+GROUP BY carrier
+HAVING COUNT(*) > 100 AND COUNT(dep_delay) > (
+    SELECT COUNT(*)
+    FROM flights
+    WHERE dep_delay IS NOT NULL
+);
+```
+
+19. Find all planes that have not flown to JFK (John F. Kennedy International Airport).
+
+```{sql}
+#| connection: con
+#| eval: true
+#| echo: true
+
+SELECT tailnum
+FROM planes
+WHERE tailnum NOT IN (
+    SELECT DISTINCT tailnum
+    FROM flights
+    WHERE dest = 'JFK'
+);
+```
+
+20. List each flight along with the average departure delay for flights from the same origin on the same day.
+
+```{sql}
+#| connection: con
+#| eval: true
+#| echo: true
+
+SELECT flight,
+       origin,
+       year,
+       month,
+       day,
+       AVG(dep_delay) AS avg_dep_delay
+FROM flights
+GROUP BY origin, year, month, day, flight;
+
+```
+
+

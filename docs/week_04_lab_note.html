@@ -1,0 +1,2736 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.4.554">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Owen">
+
+<title>AAI1001 Lab - Week 03 Lab Learning Notes – ‘PostgreSQL’ Queries for Joining Tables</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="floating nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">AAI1001 Lab</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./week_01_lab_note.html"> 
+<span class="menu-text">Week 1</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./week_02_lab_note.html"> 
+<span class="menu-text">Week 2</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./week_03_lab_note.html"> 
+<span class="menu-text">Week 3</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link active" href="./week_04_lab_note.html" aria-current="page"> 
+<span class="menu-text">Week 4</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+          <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Week 03 Lab Learning Notes – ‘PostgreSQL’ Queries for Joining Tables</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Owen </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">Tuesday May 21, 2024</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<ol type="1">
+<li>List all flights that were delayed more than 30 minutes on departure.</li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="op">*</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> flights</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> dep_delay <span class="op">&gt;</span> <span class="dv">30</span>;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<caption>Displaying records 1 - 10</caption>
+<colgroup>
+<col style="width: 2%">
+<col style="width: 3%">
+<col style="width: 2%">
+<col style="width: 5%">
+<col style="width: 8%">
+<col style="width: 5%">
+<col style="width: 5%">
+<col style="width: 8%">
+<col style="width: 5%">
+<col style="width: 4%">
+<col style="width: 4%">
+<col style="width: 4%">
+<col style="width: 4%">
+<col style="width: 2%">
+<col style="width: 5%">
+<col style="width: 5%">
+<col style="width: 2%">
+<col style="width: 4%">
+<col style="width: 11%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: right;">year</th>
+<th style="text-align: right;">month</th>
+<th style="text-align: right;">day</th>
+<th style="text-align: right;">dep_time</th>
+<th style="text-align: right;">sched_dep_time</th>
+<th style="text-align: right;">dep_delay</th>
+<th style="text-align: right;">arr_time</th>
+<th style="text-align: right;">sched_arr_time</th>
+<th style="text-align: right;">arr_delay</th>
+<th style="text-align: left;">carrier</th>
+<th style="text-align: right;">flight</th>
+<th style="text-align: left;">tailnum</th>
+<th style="text-align: left;">origin</th>
+<th style="text-align: left;">dest</th>
+<th style="text-align: right;">air_time</th>
+<th style="text-align: right;">distance</th>
+<th style="text-align: right;">hour</th>
+<th style="text-align: right;">minute</th>
+<th style="text-align: left;">time_hour</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">2013</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">732</td>
+<td style="text-align: right;">645</td>
+<td style="text-align: right;">47</td>
+<td style="text-align: right;">1011</td>
+<td style="text-align: right;">941</td>
+<td style="text-align: right;">30</td>
+<td style="text-align: left;">UA</td>
+<td style="text-align: right;">1111</td>
+<td style="text-align: left;">N37456</td>
+<td style="text-align: left;">EWR</td>
+<td style="text-align: left;">MCO</td>
+<td style="text-align: right;">145</td>
+<td style="text-align: right;">937</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">45</td>
+<td style="text-align: left;">2013-01-01 11:00:00</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2013</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">957</td>
+<td style="text-align: right;">733</td>
+<td style="text-align: right;">144</td>
+<td style="text-align: right;">1056</td>
+<td style="text-align: right;">853</td>
+<td style="text-align: right;">123</td>
+<td style="text-align: left;">UA</td>
+<td style="text-align: right;">856</td>
+<td style="text-align: left;">N534UA</td>
+<td style="text-align: left;">EWR</td>
+<td style="text-align: left;">BOS</td>
+<td style="text-align: right;">37</td>
+<td style="text-align: right;">200</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">33</td>
+<td style="text-align: left;">2013-01-01 12:00:00</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">2013</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1025</td>
+<td style="text-align: right;">951</td>
+<td style="text-align: right;">34</td>
+<td style="text-align: right;">1258</td>
+<td style="text-align: right;">1302</td>
+<td style="text-align: right;">-4</td>
+<td style="text-align: left;">UA</td>
+<td style="text-align: right;">501</td>
+<td style="text-align: left;">N437UA</td>
+<td style="text-align: left;">EWR</td>
+<td style="text-align: left;">MCO</td>
+<td style="text-align: right;">137</td>
+<td style="text-align: right;">937</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">51</td>
+<td style="text-align: left;">2013-01-01 14:00:00</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2013</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1114</td>
+<td style="text-align: right;">900</td>
+<td style="text-align: right;">134</td>
+<td style="text-align: right;">1447</td>
+<td style="text-align: right;">1222</td>
+<td style="text-align: right;">145</td>
+<td style="text-align: left;">UA</td>
+<td style="text-align: right;">1086</td>
+<td style="text-align: left;">N76502</td>
+<td style="text-align: left;">LGA</td>
+<td style="text-align: left;">IAH</td>
+<td style="text-align: right;">248</td>
+<td style="text-align: right;">1416</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: left;">2013-01-01 14:00:00</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">2013</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1120</td>
+<td style="text-align: right;">944</td>
+<td style="text-align: right;">96</td>
+<td style="text-align: right;">1331</td>
+<td style="text-align: right;">1213</td>
+<td style="text-align: right;">78</td>
+<td style="text-align: left;">EV</td>
+<td style="text-align: right;">4495</td>
+<td style="text-align: left;">N16561</td>
+<td style="text-align: left;">EWR</td>
+<td style="text-align: left;">SAV</td>
+<td style="text-align: right;">117</td>
+<td style="text-align: right;">708</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">44</td>
+<td style="text-align: left;">2013-01-01 14:00:00</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2013</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1253</td>
+<td style="text-align: right;">1212</td>
+<td style="text-align: right;">41</td>
+<td style="text-align: right;">1524</td>
+<td style="text-align: right;">1436</td>
+<td style="text-align: right;">48</td>
+<td style="text-align: left;">UA</td>
+<td style="text-align: right;">754</td>
+<td style="text-align: left;">N576UA</td>
+<td style="text-align: left;">EWR</td>
+<td style="text-align: left;">DEN</td>
+<td style="text-align: right;">252</td>
+<td style="text-align: right;">1605</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: left;">2013-01-01 17:00:00</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">2013</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1304</td>
+<td style="text-align: right;">1227</td>
+<td style="text-align: right;">37</td>
+<td style="text-align: right;">1518</td>
+<td style="text-align: right;">1422</td>
+<td style="text-align: right;">56</td>
+<td style="text-align: left;">EV</td>
+<td style="text-align: right;">4640</td>
+<td style="text-align: left;">N19966</td>
+<td style="text-align: left;">EWR</td>
+<td style="text-align: left;">DAY</td>
+<td style="text-align: right;">107</td>
+<td style="text-align: right;">533</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">27</td>
+<td style="text-align: left;">2013-01-01 17:00:00</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2013</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1337</td>
+<td style="text-align: right;">1220</td>
+<td style="text-align: right;">77</td>
+<td style="text-align: right;">1649</td>
+<td style="text-align: right;">1531</td>
+<td style="text-align: right;">78</td>
+<td style="text-align: left;">B6</td>
+<td style="text-align: right;">673</td>
+<td style="text-align: left;">N636JB</td>
+<td style="text-align: left;">JFK</td>
+<td style="text-align: left;">LAX</td>
+<td style="text-align: right;">352</td>
+<td style="text-align: right;">2475</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">20</td>
+<td style="text-align: left;">2013-01-01 17:00:00</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">2013</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1355</td>
+<td style="text-align: right;">1315</td>
+<td style="text-align: right;">40</td>
+<td style="text-align: right;">1538</td>
+<td style="text-align: right;">1452</td>
+<td style="text-align: right;">46</td>
+<td style="text-align: left;">EV</td>
+<td style="text-align: right;">4552</td>
+<td style="text-align: left;">N13958</td>
+<td style="text-align: left;">EWR</td>
+<td style="text-align: left;">GSO</td>
+<td style="text-align: right;">86</td>
+<td style="text-align: right;">445</td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: left;">2013-01-01 18:00:00</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2013</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1356</td>
+<td style="text-align: right;">1259</td>
+<td style="text-align: right;">57</td>
+<td style="text-align: right;">1538</td>
+<td style="text-align: right;">1438</td>
+<td style="text-align: right;">60</td>
+<td style="text-align: left;">UA</td>
+<td style="text-align: right;">32</td>
+<td style="text-align: left;">N17128</td>
+<td style="text-align: left;">EWR</td>
+<td style="text-align: left;">ORD</td>
+<td style="text-align: right;">135</td>
+<td style="text-align: right;">719</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">59</td>
+<td style="text-align: left;">2013-01-01 17:00:00</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<ol start="2" type="1">
+<li>Retrieve the flight number, carrier name, and destination airport for all flights that departed from EWR (Newark Liberty International Airport).</li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> f.flight, a.name, f.dest</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> flights f</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="kw">JOIN</span> airlines a <span class="kw">ON</span> f.carrier <span class="op">=</span> a.carrier</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> origin <span class="op">=</span> <span class="st">'EWR'</span>;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<caption>Displaying records 1 - 10</caption>
+<thead>
+<tr class="header">
+<th style="text-align: right;">flight</th>
+<th style="text-align: left;">name</th>
+<th style="text-align: left;">dest</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1545</td>
+<td style="text-align: left;">United Air Lines Inc.</td>
+<td style="text-align: left;">IAH</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1696</td>
+<td style="text-align: left;">United Air Lines Inc.</td>
+<td style="text-align: left;">ORD</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">507</td>
+<td style="text-align: left;">JetBlue Airways</td>
+<td style="text-align: left;">FLL</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1124</td>
+<td style="text-align: left;">United Air Lines Inc.</td>
+<td style="text-align: left;">SFO</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">1187</td>
+<td style="text-align: left;">United Air Lines Inc.</td>
+<td style="text-align: left;">LAS</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">343</td>
+<td style="text-align: left;">JetBlue Airways</td>
+<td style="text-align: left;">PBI</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">1895</td>
+<td style="text-align: left;">American Airlines Inc.</td>
+<td style="text-align: left;">MIA</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1077</td>
+<td style="text-align: left;">United Air Lines Inc.</td>
+<td style="text-align: left;">MIA</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">575</td>
+<td style="text-align: left;">Delta Air Lines Inc.</td>
+<td style="text-align: left;">ATL</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">245</td>
+<td style="text-align: left;">US Airways Inc.</td>
+<td style="text-align: left;">PHX</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<ol start="3" type="1">
+<li>Find the average arrival delay for each carrier.</li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> carrier, <span class="fu">AVG</span>(arr_delay) <span class="kw">AS</span> avg_arr_delay</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> flights</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="kw">GROUP</span> <span class="kw">BY</span> carrier;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<caption>Displaying records 1 - 10</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">carrier</th>
+<th style="text-align: right;">avg_arr_delay</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">9E</td>
+<td style="text-align: right;">7.379669</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">AA</td>
+<td style="text-align: right;">0.204878</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">AS</td>
+<td style="text-align: right;">-9.930889</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">B6</td>
+<td style="text-align: right;">9.603291</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">DL</td>
+<td style="text-align: right;">1.887704</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">EV</td>
+<td style="text-align: right;">15.796431</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">F9</td>
+<td style="text-align: right;">21.755520</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">FL</td>
+<td style="text-align: right;">19.521202</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">HA</td>
+<td style="text-align: right;">-6.915205</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">MQ</td>
+<td style="text-align: right;">7.900958</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<ol start="4" type="1">
+<li>List the tail number, manufacturer, and model of planes that have flights departing from LGA (LaGuardia Airport).</li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="kw">DISTINCT</span> p.tailnum, p.manufacturer, p.model</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> flights f</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="kw">JOIN</span> planes p <span class="kw">ON</span> f.tailnum <span class="op">=</span> p.tailnum</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> f.origin <span class="op">=</span> <span class="st">'LGA'</span>;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<caption>Displaying records 1 - 10</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">tailnum</th>
+<th style="text-align: left;">manufacturer</th>
+<th style="text-align: left;">model</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">N502MJ</td>
+<td style="text-align: left;">BOMBARDIER INC</td>
+<td style="text-align: left;">CL-600-2C10</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">N14923</td>
+<td style="text-align: left;">EMBRAER</td>
+<td style="text-align: left;">EMB-145LR</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">N627JB</td>
+<td style="text-align: left;">AIRBUS</td>
+<td style="text-align: left;">A320-232</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">N953DN</td>
+<td style="text-align: left;">MCDONNELL DOUGLAS</td>
+<td style="text-align: left;">MD-90-30</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">N8665A</td>
+<td style="text-align: left;">BOMBARDIER INC</td>
+<td style="text-align: left;">CL-600-2B19</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">N8587E</td>
+<td style="text-align: left;">BOMBARDIER INC</td>
+<td style="text-align: left;">CL-600-2B19</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">N12218</td>
+<td style="text-align: left;">BOEING</td>
+<td style="text-align: left;">737-824</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">N557NW</td>
+<td style="text-align: left;">BOEING</td>
+<td style="text-align: left;">757-251</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">N825AS</td>
+<td style="text-align: left;">CANADAIR</td>
+<td style="text-align: left;">CL-600-2B19</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">N389DA</td>
+<td style="text-align: left;">BOEING</td>
+<td style="text-align: left;">737-832</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<ol start="5" type="1">
+<li>Retrieve the flight number, origin, destination, and the name of the destination airport for flights that traveled more than 1000 miles.</li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> f.flight, f.origin, f.dest, a.name <span class="kw">AS</span> destination_airport_name</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> flights f</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="kw">JOIN</span> airports a <span class="kw">ON</span> f.dest <span class="op">=</span> a.faa</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> f.distance <span class="op">&gt;</span> <span class="dv">1000</span>;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<caption>Displaying records 1 - 10</caption>
+<thead>
+<tr class="header">
+<th style="text-align: right;">flight</th>
+<th style="text-align: left;">origin</th>
+<th style="text-align: left;">dest</th>
+<th style="text-align: left;">destination_airport_name</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1545</td>
+<td style="text-align: left;">EWR</td>
+<td style="text-align: left;">IAH</td>
+<td style="text-align: left;">George Bush Intercontinental</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1714</td>
+<td style="text-align: left;">LGA</td>
+<td style="text-align: left;">IAH</td>
+<td style="text-align: left;">George Bush Intercontinental</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">1141</td>
+<td style="text-align: left;">JFK</td>
+<td style="text-align: left;">MIA</td>
+<td style="text-align: left;">Miami Intl</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">507</td>
+<td style="text-align: left;">EWR</td>
+<td style="text-align: left;">FLL</td>
+<td style="text-align: left;">Fort Lauderdale Hollywood Intl</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">49</td>
+<td style="text-align: left;">JFK</td>
+<td style="text-align: left;">PBI</td>
+<td style="text-align: left;">Palm Beach Intl</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">71</td>
+<td style="text-align: left;">JFK</td>
+<td style="text-align: left;">TPA</td>
+<td style="text-align: left;">Tampa Intl</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">194</td>
+<td style="text-align: left;">JFK</td>
+<td style="text-align: left;">LAX</td>
+<td style="text-align: left;">Los Angeles Intl</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1124</td>
+<td style="text-align: left;">EWR</td>
+<td style="text-align: left;">SFO</td>
+<td style="text-align: left;">San Francisco Intl</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">1187</td>
+<td style="text-align: left;">EWR</td>
+<td style="text-align: left;">LAS</td>
+<td style="text-align: left;">Mc Carran Intl</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">371</td>
+<td style="text-align: left;">LGA</td>
+<td style="text-align: left;">FLL</td>
+<td style="text-align: left;">Fort Lauderdale Hollywood Intl</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<ol start="6" type="1">
+<li>Find all planes that are in the planes table but did not have any recorded flights in the flights table.</li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> p.tailnum, p.manufacturer, p.model</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> planes p</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="kw">LEFT</span> <span class="kw">JOIN</span> flights f <span class="kw">ON</span> p.tailnum <span class="op">=</span> f.tailnum</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> f.tailnum <span class="kw">IS</span> <span class="kw">NULL</span>;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table>
+<caption>0 records</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">tailnum</th>
+<th style="text-align: left;">manufacturer</th>
+<th style="text-align: left;">model</th>
+</tr>
+</thead>
+<tbody>
+</tbody>
+</table>
+</div>
+</div>
+<ol start="7" type="1">
+<li>For each day, count the number of flights that were scheduled to depart.</li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> DATE_TRUNC(<span class="st">'day'</span>, time_hour) <span class="kw">AS</span> <span class="dt">day</span>, <span class="fu">COUNT</span>(<span class="op">*</span>) <span class="kw">AS</span> num_flights</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> flights</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="kw">GROUP</span> <span class="kw">BY</span> DATE_TRUNC(<span class="st">'day'</span>, time_hour)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="kw">ORDER</span> <span class="kw">BY</span> <span class="dt">day</span>;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<caption>Displaying records 1 - 10</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">day</th>
+<th style="text-align: right;">num_flights</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">2013-01-01</td>
+<td style="text-align: right;">566</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2013-01-02</td>
+<td style="text-align: right;">764</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2013-01-03</td>
+<td style="text-align: right;">750</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2013-01-04</td>
+<td style="text-align: right;">743</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2013-01-05</td>
+<td style="text-align: right;">624</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2013-01-06</td>
+<td style="text-align: right;">638</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2013-01-07</td>
+<td style="text-align: right;">760</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2013-01-08</td>
+<td style="text-align: right;">746</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2013-01-09</td>
+<td style="text-align: right;">737</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2013-01-10</td>
+<td style="text-align: right;">765</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<ol start="8" type="1">
+<li>List the flights along with their corresponding weather conditions at the origin airport for January 1, 2013.</li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> f.flight, f.origin, w.temp, w.precip, w.wind_speed</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> flights f</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="kw">JOIN</span> weather w <span class="kw">ON</span> f.origin <span class="op">=</span> w.origin <span class="kw">AND</span> f.<span class="dt">year</span> <span class="op">=</span> w.<span class="dt">year</span> <span class="kw">AND</span> f.<span class="dt">month</span> <span class="op">=</span> w.<span class="dt">month</span> <span class="kw">AND</span> f.<span class="dt">day</span> <span class="op">=</span> w.<span class="dt">day</span> <span class="kw">AND</span> f.<span class="kw">hour</span> <span class="op">=</span> w.<span class="kw">hour</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> f.<span class="dt">year</span> <span class="op">=</span> <span class="dv">2013</span> <span class="kw">AND</span> f.<span class="dt">month</span> <span class="op">=</span> <span class="dv">1</span> <span class="kw">AND</span> f.<span class="dt">day</span> <span class="op">=</span> <span class="dv">1</span>;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<caption>Displaying records 1 - 10</caption>
+<thead>
+<tr class="header">
+<th style="text-align: right;">flight</th>
+<th style="text-align: left;">origin</th>
+<th style="text-align: right;">temp</th>
+<th style="text-align: right;">precip</th>
+<th style="text-align: right;">wind_speed</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1696</td>
+<td style="text-align: left;">EWR</td>
+<td style="text-align: right;">39.02</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">12.65858</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1545</td>
+<td style="text-align: left;">EWR</td>
+<td style="text-align: right;">39.02</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">12.65858</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">1806</td>
+<td style="text-align: left;">JFK</td>
+<td style="text-align: right;">39.02</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">14.96014</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1141</td>
+<td style="text-align: left;">JFK</td>
+<td style="text-align: right;">39.02</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">14.96014</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">1714</td>
+<td style="text-align: left;">LGA</td>
+<td style="text-align: right;">39.92</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">14.96014</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1701</td>
+<td style="text-align: left;">EWR</td>
+<td style="text-align: right;">37.94</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">11.50780</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">507</td>
+<td style="text-align: left;">EWR</td>
+<td style="text-align: right;">37.94</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">11.50780</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1496</td>
+<td style="text-align: left;">EWR</td>
+<td style="text-align: right;">37.94</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">11.50780</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">1111</td>
+<td style="text-align: left;">EWR</td>
+<td style="text-align: right;">37.94</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">11.50780</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1187</td>
+<td style="text-align: left;">EWR</td>
+<td style="text-align: right;">37.94</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">11.50780</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<ol start="9" type="1">
+<li>Find the carriers that have an average departure delay of more than 10 minutes. Find the carriers that have an average departure delay of more than 10 minutes.</li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> carrier, <span class="fu">AVG</span>(dep_delay) <span class="kw">AS</span> avg_dep_delay</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> flights</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="kw">GROUP</span> <span class="kw">BY</span> carrier</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="kw">HAVING</span> <span class="fu">AVG</span>(dep_delay) <span class="op">&gt;</span> <span class="dv">10</span>;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<caption>Displaying records 1 - 10</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">carrier</th>
+<th style="text-align: right;">avg_dep_delay</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">9E</td>
+<td style="text-align: right;">16.72577</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">B6</td>
+<td style="text-align: right;">13.18561</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">EV</td>
+<td style="text-align: right;">19.95539</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">F9</td>
+<td style="text-align: right;">20.08976</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">FL</td>
+<td style="text-align: right;">18.28609</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">OO</td>
+<td style="text-align: right;">12.58621</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">UA</td>
+<td style="text-align: right;">12.11433</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">VX</td>
+<td style="text-align: right;">12.86942</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">WN</td>
+<td style="text-align: right;">17.71983</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">YV</td>
+<td style="text-align: right;">18.99633</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<ol start="10" type="1">
+<li>Retrieve the flight number, departure time, scheduled departure time, and manufacturer of planes that departed with a delay of more than 60 minutes.</li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> f.flight, f.dep_time, f.sched_dep_time, p.manufacturer</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> flights f</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="kw">JOIN</span> planes p <span class="kw">ON</span> f.tailnum <span class="op">=</span> p.tailnum</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> f.dep_delay <span class="op">&gt;</span> <span class="dv">60</span>;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<caption>Displaying records 1 - 10</caption>
+<thead>
+<tr class="header">
+<th style="text-align: right;">flight</th>
+<th style="text-align: right;">dep_time</th>
+<th style="text-align: right;">sched_dep_time</th>
+<th style="text-align: left;">manufacturer</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">856</td>
+<td style="text-align: right;">957</td>
+<td style="text-align: right;">733</td>
+<td style="text-align: left;">BOEING</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1086</td>
+<td style="text-align: right;">1114</td>
+<td style="text-align: right;">900</td>
+<td style="text-align: left;">BOEING</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">4495</td>
+<td style="text-align: right;">1120</td>
+<td style="text-align: right;">944</td>
+<td style="text-align: left;">EMBRAER</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">673</td>
+<td style="text-align: right;">1337</td>
+<td style="text-align: right;">1220</td>
+<td style="text-align: left;">AIRBUS</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">4869</td>
+<td style="text-align: right;">1400</td>
+<td style="text-align: right;">1250</td>
+<td style="text-align: left;">BOMBARDIER INC</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4497</td>
+<td style="text-align: right;">1505</td>
+<td style="text-align: right;">1310</td>
+<td style="text-align: left;">EMBRAER</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">525</td>
+<td style="text-align: right;">1525</td>
+<td style="text-align: right;">1340</td>
+<td style="text-align: left;">EMBRAER</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4181</td>
+<td style="text-align: right;">1549</td>
+<td style="text-align: right;">1445</td>
+<td style="text-align: left;">EMBRAER</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">5712</td>
+<td style="text-align: right;">1558</td>
+<td style="text-align: right;">1359</td>
+<td style="text-align: left;">CANADAIR</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">465</td>
+<td style="text-align: right;">1607</td>
+<td style="text-align: right;">1443</td>
+<td style="text-align: left;">AIRBUS INDUSTRIE</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<ol start="11" type="1">
+<li>List all flights that departed after the average departure time on January 1, 2013.</li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="op">*</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> flights</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> dep_time <span class="op">&gt;</span> (</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">SELECT</span> <span class="fu">AVG</span>(dep_time)</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">FROM</span> flights</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">WHERE</span> <span class="dt">year</span> <span class="op">=</span> <span class="dv">2013</span> <span class="kw">AND</span> <span class="dt">month</span> <span class="op">=</span> <span class="dv">1</span> <span class="kw">AND</span> <span class="dt">day</span> <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>) <span class="kw">AND</span> <span class="dt">year</span> <span class="op">=</span> <span class="dv">2013</span> <span class="kw">AND</span> <span class="dt">month</span> <span class="op">=</span> <span class="dv">1</span> <span class="kw">AND</span> <span class="dt">day</span> <span class="op">=</span> <span class="dv">1</span>;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<caption>Displaying records 1 - 10</caption>
+<colgroup>
+<col style="width: 2%">
+<col style="width: 3%">
+<col style="width: 2%">
+<col style="width: 5%">
+<col style="width: 8%">
+<col style="width: 5%">
+<col style="width: 5%">
+<col style="width: 8%">
+<col style="width: 5%">
+<col style="width: 4%">
+<col style="width: 4%">
+<col style="width: 4%">
+<col style="width: 4%">
+<col style="width: 2%">
+<col style="width: 5%">
+<col style="width: 5%">
+<col style="width: 2%">
+<col style="width: 4%">
+<col style="width: 11%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: right;">year</th>
+<th style="text-align: right;">month</th>
+<th style="text-align: right;">day</th>
+<th style="text-align: right;">dep_time</th>
+<th style="text-align: right;">sched_dep_time</th>
+<th style="text-align: right;">dep_delay</th>
+<th style="text-align: right;">arr_time</th>
+<th style="text-align: right;">sched_arr_time</th>
+<th style="text-align: right;">arr_delay</th>
+<th style="text-align: left;">carrier</th>
+<th style="text-align: right;">flight</th>
+<th style="text-align: left;">tailnum</th>
+<th style="text-align: left;">origin</th>
+<th style="text-align: left;">dest</th>
+<th style="text-align: right;">air_time</th>
+<th style="text-align: right;">distance</th>
+<th style="text-align: right;">hour</th>
+<th style="text-align: right;">minute</th>
+<th style="text-align: left;">time_hour</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">2013</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1400</td>
+<td style="text-align: right;">1250</td>
+<td style="text-align: right;">70</td>
+<td style="text-align: right;">1645</td>
+<td style="text-align: right;">1502</td>
+<td style="text-align: right;">103</td>
+<td style="text-align: left;">EV</td>
+<td style="text-align: right;">4869</td>
+<td style="text-align: left;">N748EV</td>
+<td style="text-align: left;">LGA</td>
+<td style="text-align: left;">MEM</td>
+<td style="text-align: right;">178</td>
+<td style="text-align: right;">963</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">50</td>
+<td style="text-align: left;">2013-01-01 17:00:00</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2013</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1400</td>
+<td style="text-align: right;">1400</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1634</td>
+<td style="text-align: right;">1636</td>
+<td style="text-align: right;">-2</td>
+<td style="text-align: left;">DL</td>
+<td style="text-align: right;">2247</td>
+<td style="text-align: left;">N6704Z</td>
+<td style="text-align: left;">LGA</td>
+<td style="text-align: left;">ATL</td>
+<td style="text-align: right;">130</td>
+<td style="text-align: right;">762</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: left;">2013-01-01 19:00:00</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">2013</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1402</td>
+<td style="text-align: right;">1323</td>
+<td style="text-align: right;">39</td>
+<td style="text-align: right;">1650</td>
+<td style="text-align: right;">1526</td>
+<td style="text-align: right;">84</td>
+<td style="text-align: left;">EV</td>
+<td style="text-align: right;">4516</td>
+<td style="text-align: left;">N13123</td>
+<td style="text-align: left;">EWR</td>
+<td style="text-align: left;">MEM</td>
+<td style="text-align: right;">183</td>
+<td style="text-align: right;">946</td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">23</td>
+<td style="text-align: left;">2013-01-01 18:00:00</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2013</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1408</td>
+<td style="text-align: right;">1411</td>
+<td style="text-align: right;">-3</td>
+<td style="text-align: right;">1646</td>
+<td style="text-align: right;">1640</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: left;">FL</td>
+<td style="text-align: right;">349</td>
+<td style="text-align: left;">N895AT</td>
+<td style="text-align: left;">LGA</td>
+<td style="text-align: left;">ATL</td>
+<td style="text-align: right;">133</td>
+<td style="text-align: right;">762</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">11</td>
+<td style="text-align: left;">2013-01-01 19:00:00</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">2013</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1411</td>
+<td style="text-align: right;">1315</td>
+<td style="text-align: right;">56</td>
+<td style="text-align: right;">1717</td>
+<td style="text-align: right;">1611</td>
+<td style="text-align: right;">66</td>
+<td style="text-align: left;">B6</td>
+<td style="text-align: right;">505</td>
+<td style="text-align: left;">N516JB</td>
+<td style="text-align: left;">EWR</td>
+<td style="text-align: left;">FLL</td>
+<td style="text-align: right;">154</td>
+<td style="text-align: right;">1065</td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: left;">2013-01-01 18:00:00</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2013</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1416</td>
+<td style="text-align: right;">1411</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">1603</td>
+<td style="text-align: right;">1549</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: left;">UA</td>
+<td style="text-align: right;">683</td>
+<td style="text-align: left;">N456UA</td>
+<td style="text-align: left;">EWR</td>
+<td style="text-align: left;">ORD</td>
+<td style="text-align: right;">136</td>
+<td style="text-align: right;">719</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">11</td>
+<td style="text-align: left;">2013-01-01 19:00:00</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">2013</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1418</td>
+<td style="text-align: right;">1419</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">1726</td>
+<td style="text-align: right;">1732</td>
+<td style="text-align: right;">-6</td>
+<td style="text-align: left;">UA</td>
+<td style="text-align: right;">16</td>
+<td style="text-align: left;">N37464</td>
+<td style="text-align: left;">EWR</td>
+<td style="text-align: left;">SEA</td>
+<td style="text-align: right;">348</td>
+<td style="text-align: right;">2402</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">19</td>
+<td style="text-align: left;">2013-01-01 19:00:00</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2013</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1421</td>
+<td style="text-align: right;">1422</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">1517</td>
+<td style="text-align: right;">1535</td>
+<td style="text-align: right;">-18</td>
+<td style="text-align: left;">B6</td>
+<td style="text-align: right;">1010</td>
+<td style="text-align: left;">N274JB</td>
+<td style="text-align: left;">JFK</td>
+<td style="text-align: left;">BOS</td>
+<td style="text-align: right;">38</td>
+<td style="text-align: right;">187</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">22</td>
+<td style="text-align: left;">2013-01-01 19:00:00</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">2013</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1421</td>
+<td style="text-align: right;">1355</td>
+<td style="text-align: right;">26</td>
+<td style="text-align: right;">1735</td>
+<td style="text-align: right;">1709</td>
+<td style="text-align: right;">26</td>
+<td style="text-align: left;">B6</td>
+<td style="text-align: right;">83</td>
+<td style="text-align: left;">N503JB</td>
+<td style="text-align: left;">JFK</td>
+<td style="text-align: left;">SEA</td>
+<td style="text-align: right;">349</td>
+<td style="text-align: right;">2422</td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">55</td>
+<td style="text-align: left;">2013-01-01 18:00:00</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2013</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1421</td>
+<td style="text-align: right;">1430</td>
+<td style="text-align: right;">-9</td>
+<td style="text-align: right;">1724</td>
+<td style="text-align: right;">1752</td>
+<td style="text-align: right;">-28</td>
+<td style="text-align: left;">DL</td>
+<td style="text-align: right;">1531</td>
+<td style="text-align: left;">N327NW</td>
+<td style="text-align: left;">LGA</td>
+<td style="text-align: left;">RSW</td>
+<td style="text-align: right;">160</td>
+<td style="text-align: right;">1080</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">30</td>
+<td style="text-align: left;">2013-01-01 19:00:00</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<ol start="12" type="1">
+<li>Retrieve the names of carriers that had flights departing from EWR with a delay greater than the average departure delay of all flights from EWR.</li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">WITH</span> avg_dep_delay_ewr <span class="kw">AS</span> (</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">SELECT</span> <span class="fu">AVG</span>(dep_delay) <span class="kw">AS</span> avg_dep_delay</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">FROM</span> flights</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">WHERE</span> origin <span class="op">=</span> <span class="st">'EWR'</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="kw">DISTINCT</span> a.name <span class="kw">AS</span> carrier_name</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> flights f</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="kw">JOIN</span> avg_dep_delay_ewr <span class="fu">avg</span> <span class="kw">ON</span> f.dep_delay <span class="op">&gt;</span> <span class="fu">avg</span>.avg_dep_delay</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="kw">JOIN</span> airlines a <span class="kw">ON</span> f.carrier <span class="op">=</span> a.carrier</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> f.origin <span class="op">=</span> <span class="st">'EWR'</span>;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<caption>Displaying records 1 - 10</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">carrier_name</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Alaska Airlines Inc.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Southwest Airlines Co.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">JetBlue Airways</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Virgin America</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Envoy Air</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">American Airlines Inc.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Delta Air Lines Inc.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">ExpressJet Airlines Inc.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">SkyWest Airlines Inc.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">US Airways Inc.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<ol start="13" type="1">
+<li>List the flight number, origin, and the maximum departure delay for flights on the same day.</li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> flight, origin, <span class="fu">MAX</span>(dep_delay) <span class="kw">AS</span> max_dep_delay</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> flights</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="kw">GROUP</span> <span class="kw">BY</span> <span class="dt">year</span>, <span class="dt">month</span>, <span class="dt">day</span>, flight, origin;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<caption>Displaying records 1 - 10</caption>
+<thead>
+<tr class="header">
+<th style="text-align: right;">flight</th>
+<th style="text-align: left;">origin</th>
+<th style="text-align: right;">max_dep_delay</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">4255</td>
+<td style="text-align: left;">EWR</td>
+<td style="text-align: right;">-2</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">3302</td>
+<td style="text-align: left;">EWR</td>
+<td style="text-align: right;">-7</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">125</td>
+<td style="text-align: left;">JFK</td>
+<td style="text-align: right;">28</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1245</td>
+<td style="text-align: left;">EWR</td>
+<td style="text-align: right;">-4</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">2147</td>
+<td style="text-align: left;">LGA</td>
+<td style="text-align: right;">-6</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1231</td>
+<td style="text-align: left;">LGA</td>
+<td style="text-align: right;">11</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">505</td>
+<td style="text-align: left;">EWR</td>
+<td style="text-align: right;">57</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2054</td>
+<td style="text-align: left;">LGA</td>
+<td style="text-align: right;">-2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">1698</td>
+<td style="text-align: left;">EWR</td>
+<td style="text-align: right;">31</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4517</td>
+<td style="text-align: left;">LGA</td>
+<td style="text-align: right;">28</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<ol start="14" type="1">
+<li>Find all flights that had a departure delay greater than the average departure delay of their respective carrier.</li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="kw">WITH</span> avg_dep_delay_per_carrier <span class="kw">AS</span> (</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">SELECT</span> carrier, <span class="fu">AVG</span>(dep_delay) <span class="kw">AS</span> avg_dep_delay</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">FROM</span> flights</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">GROUP</span> <span class="kw">BY</span> carrier</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> f.<span class="op">*</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> flights f</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="kw">JOIN</span> avg_dep_delay_per_carrier ad</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="kw">ON</span> f.carrier <span class="op">=</span> ad.carrier</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> f.dep_delay <span class="op">&gt;</span> ad.avg_dep_delay;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<caption>Displaying records 1 - 10</caption>
+<colgroup>
+<col style="width: 2%">
+<col style="width: 3%">
+<col style="width: 2%">
+<col style="width: 5%">
+<col style="width: 8%">
+<col style="width: 5%">
+<col style="width: 5%">
+<col style="width: 8%">
+<col style="width: 5%">
+<col style="width: 4%">
+<col style="width: 4%">
+<col style="width: 4%">
+<col style="width: 4%">
+<col style="width: 2%">
+<col style="width: 5%">
+<col style="width: 5%">
+<col style="width: 2%">
+<col style="width: 4%">
+<col style="width: 11%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: right;">year</th>
+<th style="text-align: right;">month</th>
+<th style="text-align: right;">day</th>
+<th style="text-align: right;">dep_time</th>
+<th style="text-align: right;">sched_dep_time</th>
+<th style="text-align: right;">dep_delay</th>
+<th style="text-align: right;">arr_time</th>
+<th style="text-align: right;">sched_arr_time</th>
+<th style="text-align: right;">arr_delay</th>
+<th style="text-align: left;">carrier</th>
+<th style="text-align: right;">flight</th>
+<th style="text-align: left;">tailnum</th>
+<th style="text-align: left;">origin</th>
+<th style="text-align: left;">dest</th>
+<th style="text-align: right;">air_time</th>
+<th style="text-align: right;">distance</th>
+<th style="text-align: right;">hour</th>
+<th style="text-align: right;">minute</th>
+<th style="text-align: left;">time_hour</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">2013</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">632</td>
+<td style="text-align: right;">608</td>
+<td style="text-align: right;">24</td>
+<td style="text-align: right;">740</td>
+<td style="text-align: right;">728</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: left;">EV</td>
+<td style="text-align: right;">4144</td>
+<td style="text-align: left;">N13553</td>
+<td style="text-align: left;">EWR</td>
+<td style="text-align: left;">IAD</td>
+<td style="text-align: right;">52</td>
+<td style="text-align: right;">212</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: left;">2013-01-01 11:00:00</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2013</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">732</td>
+<td style="text-align: right;">645</td>
+<td style="text-align: right;">47</td>
+<td style="text-align: right;">1011</td>
+<td style="text-align: right;">941</td>
+<td style="text-align: right;">30</td>
+<td style="text-align: left;">UA</td>
+<td style="text-align: right;">1111</td>
+<td style="text-align: left;">N37456</td>
+<td style="text-align: left;">EWR</td>
+<td style="text-align: left;">MCO</td>
+<td style="text-align: right;">145</td>
+<td style="text-align: right;">937</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">45</td>
+<td style="text-align: left;">2013-01-01 11:00:00</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">2013</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">743</td>
+<td style="text-align: right;">730</td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">1107</td>
+<td style="text-align: right;">1100</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: left;">AA</td>
+<td style="text-align: right;">33</td>
+<td style="text-align: left;">N338AA</td>
+<td style="text-align: left;">JFK</td>
+<td style="text-align: left;">LAX</td>
+<td style="text-align: right;">358</td>
+<td style="text-align: right;">2475</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">30</td>
+<td style="text-align: left;">2013-01-01 12:00:00</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2013</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">743</td>
+<td style="text-align: right;">730</td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">1059</td>
+<td style="text-align: right;">1056</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: left;">DL</td>
+<td style="text-align: right;">495</td>
+<td style="text-align: left;">N3760C</td>
+<td style="text-align: left;">JFK</td>
+<td style="text-align: left;">SEA</td>
+<td style="text-align: right;">349</td>
+<td style="text-align: right;">2422</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">30</td>
+<td style="text-align: left;">2013-01-01 12:00:00</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">2013</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">906</td>
+<td style="text-align: right;">843</td>
+<td style="text-align: right;">23</td>
+<td style="text-align: right;">1134</td>
+<td style="text-align: right;">1125</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: left;">UA</td>
+<td style="text-align: right;">1643</td>
+<td style="text-align: left;">N17139</td>
+<td style="text-align: left;">EWR</td>
+<td style="text-align: left;">DEN</td>
+<td style="text-align: right;">246</td>
+<td style="text-align: right;">1605</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">43</td>
+<td style="text-align: left;">2013-01-01 13:00:00</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2013</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">914</td>
+<td style="text-align: right;">900</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">1058</td>
+<td style="text-align: right;">1043</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: left;">UA</td>
+<td style="text-align: right;">783</td>
+<td style="text-align: left;">N810UA</td>
+<td style="text-align: left;">EWR</td>
+<td style="text-align: left;">CLE</td>
+<td style="text-align: right;">85</td>
+<td style="text-align: right;">404</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: left;">2013-01-01 14:00:00</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">2013</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">920</td>
+<td style="text-align: right;">905</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">1039</td>
+<td style="text-align: right;">1025</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: left;">B6</td>
+<td style="text-align: right;">1305</td>
+<td style="text-align: left;">N346JB</td>
+<td style="text-align: left;">JFK</td>
+<td style="text-align: left;">IAD</td>
+<td style="text-align: right;">52</td>
+<td style="text-align: right;">228</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: left;">2013-01-01 14:00:00</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2013</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">921</td>
+<td style="text-align: right;">900</td>
+<td style="text-align: right;">21</td>
+<td style="text-align: right;">1237</td>
+<td style="text-align: right;">1227</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: left;">DL</td>
+<td style="text-align: right;">120</td>
+<td style="text-align: left;">N713TW</td>
+<td style="text-align: left;">JFK</td>
+<td style="text-align: left;">LAX</td>
+<td style="text-align: right;">333</td>
+<td style="text-align: right;">2475</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: left;">2013-01-01 14:00:00</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">2013</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">930</td>
+<td style="text-align: right;">905</td>
+<td style="text-align: right;">25</td>
+<td style="text-align: right;">1218</td>
+<td style="text-align: right;">1209</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: left;">UA</td>
+<td style="text-align: right;">1148</td>
+<td style="text-align: left;">N57439</td>
+<td style="text-align: left;">EWR</td>
+<td style="text-align: left;">TPA</td>
+<td style="text-align: right;">149</td>
+<td style="text-align: right;">997</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: left;">2013-01-01 14:00:00</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2013</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">933</td>
+<td style="text-align: right;">904</td>
+<td style="text-align: right;">29</td>
+<td style="text-align: right;">1252</td>
+<td style="text-align: right;">1210</td>
+<td style="text-align: right;">42</td>
+<td style="text-align: left;">B6</td>
+<td style="text-align: right;">17</td>
+<td style="text-align: left;">N579JB</td>
+<td style="text-align: left;">JFK</td>
+<td style="text-align: left;">FLL</td>
+<td style="text-align: right;">170</td>
+<td style="text-align: right;">1069</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: left;">2013-01-01 14:00:00</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<ol start="15" type="1">
+<li>For each carrier, find the average arrival delay and list carriers that have an average arrival delay of more than 10 minutes.</li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> carrier, avg_arr_delay</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> (</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">SELECT</span> carrier, <span class="fu">AVG</span>(arr_delay) <span class="kw">AS</span> avg_arr_delay</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">FROM</span> flights</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">GROUP</span> <span class="kw">BY</span> carrier</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>) <span class="kw">AS</span> avg_delays</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> avg_arr_delay <span class="op">&gt;</span> <span class="dv">10</span>;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<caption>5 records</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">carrier</th>
+<th style="text-align: right;">avg_arr_delay</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">EV</td>
+<td style="text-align: right;">15.79643</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">F9</td>
+<td style="text-align: right;">21.75552</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">FL</td>
+<td style="text-align: right;">19.52120</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">OO</td>
+<td style="text-align: right;">11.93103</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">YV</td>
+<td style="text-align: right;">15.55699</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<ol start="16" type="1">
+<li>List the tail numbers of planes that have flown more than the average distance of all flights.</li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="kw">DISTINCT</span> tailnum</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> flights</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> distance <span class="op">&gt;</span> (</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">SELECT</span> <span class="fu">AVG</span>(distance)</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">FROM</span> flights</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>);</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<caption>Displaying records 1 - 10</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">tailnum</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">N912XJ</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">N454UA</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">N645JB</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">N280WN</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">N904WN</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">N14972</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">N67052</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">N667UA</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">N521JB</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">N563AS</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<ol start="17" type="1">
+<li>Find all flights that have corresponding weather data with a temperature higher than 80°F at the origin airport.</li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="op">*</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> flights f</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> <span class="kw">EXISTS</span> (</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">SELECT</span> <span class="dv">1</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">FROM</span> weather w</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">WHERE</span> f.origin <span class="op">=</span> w.origin <span class="kw">AND</span> f.<span class="dt">year</span> <span class="op">=</span> w.<span class="dt">year</span> <span class="kw">AND</span> f.<span class="dt">month</span> <span class="op">=</span> w.<span class="dt">month</span> <span class="kw">AND</span> f.<span class="dt">day</span> <span class="op">=</span> w.<span class="dt">day</span> <span class="kw">AND</span> w.temp <span class="op">&gt;</span> <span class="dv">80</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>);</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<caption>Displaying records 1 - 10</caption>
+<colgroup>
+<col style="width: 2%">
+<col style="width: 3%">
+<col style="width: 2%">
+<col style="width: 5%">
+<col style="width: 8%">
+<col style="width: 5%">
+<col style="width: 5%">
+<col style="width: 8%">
+<col style="width: 5%">
+<col style="width: 4%">
+<col style="width: 4%">
+<col style="width: 4%">
+<col style="width: 4%">
+<col style="width: 2%">
+<col style="width: 5%">
+<col style="width: 5%">
+<col style="width: 2%">
+<col style="width: 4%">
+<col style="width: 11%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: right;">year</th>
+<th style="text-align: right;">month</th>
+<th style="text-align: right;">day</th>
+<th style="text-align: right;">dep_time</th>
+<th style="text-align: right;">sched_dep_time</th>
+<th style="text-align: right;">dep_delay</th>
+<th style="text-align: right;">arr_time</th>
+<th style="text-align: right;">sched_arr_time</th>
+<th style="text-align: right;">arr_delay</th>
+<th style="text-align: left;">carrier</th>
+<th style="text-align: right;">flight</th>
+<th style="text-align: left;">tailnum</th>
+<th style="text-align: left;">origin</th>
+<th style="text-align: left;">dest</th>
+<th style="text-align: right;">air_time</th>
+<th style="text-align: right;">distance</th>
+<th style="text-align: right;">hour</th>
+<th style="text-align: right;">minute</th>
+<th style="text-align: left;">time_hour</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">2013</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">447</td>
+<td style="text-align: right;">500</td>
+<td style="text-align: right;">-13</td>
+<td style="text-align: right;">614</td>
+<td style="text-align: right;">648</td>
+<td style="text-align: right;">-34</td>
+<td style="text-align: left;">US</td>
+<td style="text-align: right;">1877</td>
+<td style="text-align: left;">N538UW</td>
+<td style="text-align: left;">EWR</td>
+<td style="text-align: left;">CLT</td>
+<td style="text-align: right;">69</td>
+<td style="text-align: right;">529</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: left;">2013-10-01 09:00:00</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2013</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">522</td>
+<td style="text-align: right;">517</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">735</td>
+<td style="text-align: right;">757</td>
+<td style="text-align: right;">-22</td>
+<td style="text-align: left;">UA</td>
+<td style="text-align: right;">252</td>
+<td style="text-align: left;">N556UA</td>
+<td style="text-align: left;">EWR</td>
+<td style="text-align: left;">IAH</td>
+<td style="text-align: right;">174</td>
+<td style="text-align: right;">1400</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">17</td>
+<td style="text-align: left;">2013-10-01 09:00:00</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">2013</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">536</td>
+<td style="text-align: right;">545</td>
+<td style="text-align: right;">-9</td>
+<td style="text-align: right;">809</td>
+<td style="text-align: right;">855</td>
+<td style="text-align: right;">-46</td>
+<td style="text-align: left;">AA</td>
+<td style="text-align: right;">2243</td>
+<td style="text-align: left;">N630AA</td>
+<td style="text-align: left;">JFK</td>
+<td style="text-align: left;">MIA</td>
+<td style="text-align: right;">132</td>
+<td style="text-align: right;">1089</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">45</td>
+<td style="text-align: left;">2013-10-01 09:00:00</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2013</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">539</td>
+<td style="text-align: right;">545</td>
+<td style="text-align: right;">-6</td>
+<td style="text-align: right;">801</td>
+<td style="text-align: right;">827</td>
+<td style="text-align: right;">-26</td>
+<td style="text-align: left;">UA</td>
+<td style="text-align: right;">1714</td>
+<td style="text-align: left;">N37252</td>
+<td style="text-align: left;">LGA</td>
+<td style="text-align: left;">IAH</td>
+<td style="text-align: right;">172</td>
+<td style="text-align: right;">1416</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">45</td>
+<td style="text-align: left;">2013-10-01 09:00:00</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">2013</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">549</td>
+<td style="text-align: right;">600</td>
+<td style="text-align: right;">-11</td>
+<td style="text-align: right;">653</td>
+<td style="text-align: right;">716</td>
+<td style="text-align: right;">-23</td>
+<td style="text-align: left;">EV</td>
+<td style="text-align: right;">5716</td>
+<td style="text-align: left;">N830AS</td>
+<td style="text-align: left;">JFK</td>
+<td style="text-align: left;">IAD</td>
+<td style="text-align: right;">46</td>
+<td style="text-align: right;">228</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: left;">2013-10-01 10:00:00</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2013</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">550</td>
+<td style="text-align: right;">600</td>
+<td style="text-align: right;">-10</td>
+<td style="text-align: right;">648</td>
+<td style="text-align: right;">700</td>
+<td style="text-align: right;">-12</td>
+<td style="text-align: left;">US</td>
+<td style="text-align: right;">1909</td>
+<td style="text-align: left;">N949UW</td>
+<td style="text-align: left;">LGA</td>
+<td style="text-align: left;">PHL</td>
+<td style="text-align: right;">38</td>
+<td style="text-align: right;">96</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: left;">2013-10-01 10:00:00</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">2013</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">550</td>
+<td style="text-align: right;">600</td>
+<td style="text-align: right;">-10</td>
+<td style="text-align: right;">649</td>
+<td style="text-align: right;">659</td>
+<td style="text-align: right;">-10</td>
+<td style="text-align: left;">US</td>
+<td style="text-align: right;">2167</td>
+<td style="text-align: left;">N749US</td>
+<td style="text-align: left;">LGA</td>
+<td style="text-align: left;">DCA</td>
+<td style="text-align: right;">39</td>
+<td style="text-align: right;">214</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: left;">2013-10-01 10:00:00</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2013</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">551</td>
+<td style="text-align: right;">600</td>
+<td style="text-align: right;">-9</td>
+<td style="text-align: right;">727</td>
+<td style="text-align: right;">730</td>
+<td style="text-align: right;">-3</td>
+<td style="text-align: left;">UA</td>
+<td style="text-align: right;">279</td>
+<td style="text-align: left;">N415UA</td>
+<td style="text-align: left;">EWR</td>
+<td style="text-align: left;">ORD</td>
+<td style="text-align: right;">117</td>
+<td style="text-align: right;">719</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: left;">2013-10-01 10:00:00</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">2013</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">551</td>
+<td style="text-align: right;">600</td>
+<td style="text-align: right;">-9</td>
+<td style="text-align: right;">710</td>
+<td style="text-align: right;">721</td>
+<td style="text-align: right;">-11</td>
+<td style="text-align: left;">UA</td>
+<td style="text-align: right;">1029</td>
+<td style="text-align: left;">N27722</td>
+<td style="text-align: left;">LGA</td>
+<td style="text-align: left;">ORD</td>
+<td style="text-align: right;">114</td>
+<td style="text-align: right;">733</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: left;">2013-10-01 10:00:00</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2013</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">551</td>
+<td style="text-align: right;">600</td>
+<td style="text-align: right;">-9</td>
+<td style="text-align: right;">655</td>
+<td style="text-align: right;">708</td>
+<td style="text-align: right;">-13</td>
+<td style="text-align: left;">B6</td>
+<td style="text-align: right;">2180</td>
+<td style="text-align: left;">N238JB</td>
+<td style="text-align: left;">EWR</td>
+<td style="text-align: left;">BOS</td>
+<td style="text-align: right;">40</td>
+<td style="text-align: right;">200</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: left;">2013-10-01 10:00:00</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<ol start="18" type="1">
+<li>List carriers that have more than 100 flights with departure delays.</li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> carrier, <span class="fu">COUNT</span>(<span class="op">*</span>) <span class="kw">AS</span> num_flights</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> flights</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="kw">GROUP</span> <span class="kw">BY</span> carrier</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="kw">HAVING</span> <span class="fu">COUNT</span>(<span class="op">*</span>) <span class="op">&gt;</span> <span class="dv">100</span> <span class="kw">AND</span> <span class="fu">COUNT</span>(dep_delay) <span class="op">&gt;</span> (</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">SELECT</span> <span class="fu">COUNT</span>(<span class="op">*</span>)</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">FROM</span> flights</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">WHERE</span> dep_delay <span class="kw">IS</span> <span class="kw">NOT</span> <span class="kw">NULL</span></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>);</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table>
+<caption>0 records</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">carrier</th>
+<th style="text-align: right;">num_flights</th>
+</tr>
+</thead>
+<tbody>
+</tbody>
+</table>
+</div>
+</div>
+<ol start="19" type="1">
+<li>Find all planes that have not flown to JFK (John F. Kennedy International Airport).</li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> tailnum</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> planes</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> tailnum <span class="kw">NOT</span> <span class="kw">IN</span> (</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">SELECT</span> <span class="kw">DISTINCT</span> tailnum</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">FROM</span> flights</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">WHERE</span> dest <span class="op">=</span> <span class="st">'JFK'</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>);</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<caption>Displaying records 1 - 10</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">tailnum</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">N10156</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">N102UW</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">N103US</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">N104UW</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">N10575</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">N105UW</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">N107US</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">N108UW</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">N109UW</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">N110UW</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<ol start="20" type="1">
+<li>List each flight along with the average departure delay for flights from the same origin on the same day.</li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> flight,</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>       origin,</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>       <span class="dt">year</span>,</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>       <span class="dt">month</span>,</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>       <span class="dt">day</span>,</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>       <span class="fu">AVG</span>(dep_delay) <span class="kw">AS</span> avg_dep_delay</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> flights</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a><span class="kw">GROUP</span> <span class="kw">BY</span> origin, <span class="dt">year</span>, <span class="dt">month</span>, <span class="dt">day</span>, flight;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<caption>Displaying records 1 - 10</caption>
+<thead>
+<tr class="header">
+<th style="text-align: right;">flight</th>
+<th style="text-align: left;">origin</th>
+<th style="text-align: right;">year</th>
+<th style="text-align: right;">month</th>
+<th style="text-align: right;">day</th>
+<th style="text-align: right;">avg_dep_delay</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">746</td>
+<td style="text-align: left;">EWR</td>
+<td style="text-align: right;">2013</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">-5</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">127</td>
+<td style="text-align: left;">EWR</td>
+<td style="text-align: right;">2013</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">446</td>
+<td style="text-align: left;">EWR</td>
+<td style="text-align: right;">2013</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">11</td>
+<td style="text-align: right;">45</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4185</td>
+<td style="text-align: left;">EWR</td>
+<td style="text-align: right;">2013</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">-8</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">4364</td>
+<td style="text-align: left;">EWR</td>
+<td style="text-align: right;">2013</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">-4</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4502</td>
+<td style="text-align: left;">EWR</td>
+<td style="text-align: right;">2013</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">23</td>
+<td style="text-align: right;">-6</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">2379</td>
+<td style="text-align: left;">LGA</td>
+<td style="text-align: right;">2013</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">-8</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1483</td>
+<td style="text-align: left;">EWR</td>
+<td style="text-align: right;">2013</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">18</td>
+<td style="text-align: right;">-3</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">563</td>
+<td style="text-align: left;">LGA</td>
+<td style="text-align: right;">2013</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">-6</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1715</td>
+<td style="text-align: left;">LGA</td>
+<td style="text-align: right;">2013</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">-1</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
