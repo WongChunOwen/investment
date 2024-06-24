@@ -14,6 +14,8 @@ website:
         text: Week 3
       - href: week_04_lab_note.qmd
         text: Week 4
+      - href: week_08_lab_note.qmd
+        text: Week 8
 
 format:
   html:

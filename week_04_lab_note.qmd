@@ -20,8 +20,50 @@ format:
 library(knitr)
 library(kableExtra)
 library(DBI)
-con <- dbConnect(odbc::odbc(), dsn="NYC", timeout = 10)
+con <- dbConnect(odbc::odbc(), dsn="NYC_db", timeout = 10)
 
+
+```
+```{r}
+#| label: setup
+#| include: false
+
+# Install necessary packages
+install.packages("dplyr")
+install.packages("ggplot2")
+
+# Load necessary libraries
+library(ggplot2)
+library(dplyr)
+
+# Create the dataframe
+airports_df <- data.frame(
+  faa = c("04G", "06A", "06C", "06N"),
+  name = c("Lansdowne Airport", "Moton Field Municipal Airport", "Schaumburg Regional", "Randall Airport"),
+  lat = c(41.1304722, 32.4605722, 41.9893408, 41.431912),
+  lon = c(-80.6195833, -85.6800278, -88.1012428, -74.3915611),
+  alt = c(1044, 264, 801, 523),
+  tz = c(-5, -6, -6, -5),
+  dst = c("A", "A", "A", "A"),
+  tzone = c("America/New_York", "America/Chicago", "America/Chicago", "America/New_York")
+)
+
+# Calculate the frequency of each airport appearing
+airport_freq <- airports_df %>%
+  group_by(name) %>%
+  summarise(count = n())
+
+# Add a column with labels for the pie chart
+airport_freq <- airport_freq %>%
+  mutate(label = paste(name, "(", count, ")", sep = ""))
+
+# Plot the pie chart
+ggplot(airport_freq, aes(x = "", y = count, fill = name)) +
+  geom_bar(stat = "identity", width = 1) +
+  coord_polar("y", start = 0) +
+  geom_text(aes(label = label), position = position_stack(vjust = 0.5)) +
+  labs(title = "Frequency of Airports Appearing") +
+  theme_void()
 
 ```
 1. List all flights that were delayed more than 30 minutes on departure.

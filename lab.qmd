@@ -1,0 +1,36 @@
+---
+title: "lab"
+format: html
+editor: visual
+---
+
+```{r}
+1 + 1
+```
+
+You can add options to executable code like this
+
+```{r}
+#| echo: false
+
+
+library(readxl)
+dja_performance_report_monthly <- read_excel("C:/Users/phoin/Downloads/dja-performance-report-monthly.xls")
+
+str(dja_performance_report_monthly)
+summary(dja_performance_report_monthly)
+head(dja_performance_report_monthly)
+
+data <- na.omit(dja_performance_report_monthly) 
+head(data)
+
+# Remove duplicate rows
+data <- distinct(data)
+
+# Rename columns
+# data <- rename(data, new_column_name = old_column_name)
+
+
+# Filter data
+# data <- filter(data, column_name > some_value)
+```

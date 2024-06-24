@@ -1,0 +1,384 @@
+---
+title: "Week 08 `ggplot2`"
+author: Owen
+
+format:
+  html:
+    embed-resources: true
+---
+
+
+
+## Running Code
+
+```{r}
+#| echo: false
+
+library(ggplot2)
+
+cranlogs::cran_downloads("ggplot2", from = "2024-05-07", to = "last-day") |>
+  dplyr::pull(count) |> sum() |> format(big.mark = ",")
+```
+
+```{r}
+#| echo: false
+
+library(dplyr)
+library(tibble)
+
+dfr <- tribble(
+  ~x, ~y,
+  3, -1,
+  0, -2,
+  1, 2)
+gg <- ggplot(dfr, aes(x=x, y=y))
+class(gg)
+
+gg +
+  geom_path() +
+  labs(title = "Path")
+
+gg +
+  geom_line() +
+  labs(title = "Lines")
+
+gg +
+  geom_point() +
+  geom_path() +
+  labs(title = "Points and Path")
+
+gg +
+  geom_point() +
+  geom_line() +
+  labs(title = "Points and Lines")
+```
+
+```{r}
+#| echo: false
+
+library(gt)
+michelle <-
+  storms |>
+  filter(name == "Michelle") |>
+  mutate(obs = row_number()) |>
+  select(long, lat, wind, pressure, month, day, hour, obs)
+head(michelle, 3) |> gt()
+
+gg_long_lat <-
+  ggplot(michelle, aes(long, lat, color = obs)) +
+  geom_point() +
+  labs(
+    x = "Longitude (°)",
+    y = "Latitude (°)",
+    color = "obs"
+  )
+
+gg_long_lat +
+  geom_path() +
+  labs(title = "Path")
+
+gg_long_lat +
+  geom_line() +
+  labs(title = "Lines")
+
+gg_pressure_wind_point <-
+  ggplot(michelle, aes(pressure, wind)) +
+  geom_point() +
+  labs(
+    x = "Pressure (hPa)",
+    y = "Wind (knots)",
+    caption = "Source: National Hurricane Center"
+  )
+
+gg_pressure_wind_line <- ggplot(michelle, aes(pressure, wind)) + geom_line() +
+  labs(x = "Pressure (hPa)", y = "Wind (knots)", caption = "Source: National Hurricane Center")
+
+gg_pressure_wind_point + geom_path() + labs(title = "Path")
+gg_pressure_wind_point + geom_line() + labs(title = "Lines")
+gg_pressure_wind_line +
+  geom_jitter(alpha = 0.5) +
+  labs(title = "Jitter")
+gg_pressure_wind_line +
+  geom_count(alpha = 0.5) +
+  labs(size = "Obs", title = "Count") +
+  scale_size_area()
+
+
+gg_pressure_wind_count <- ggplot(michelle, aes(pressure, wind)) + geom_count(alpha = 0.5) + scale_size_area() +
+  labs(x = "Pressure (hPa)", y = "Wind (knots)", caption = "Source: National Hurricane Center")
+
+
+gg_pressure_wind_count +
+  geom_smooth(
+    method = "loess"
+  ) +
+  labs(
+    title = "Default Smoothing"
+  )
+
+
+gg_pressure_wind_count +
+  geom_smooth(
+    method = "lm"
+  ) +
+  labs(
+    title = "Linear Model"
+  )
+
+
+
+gg_pressure_wind_count +
+  geom_smooth(
+    span = 0.3
+  ) +
+  labs(
+    title = "Wiggly Smoothing"
+  )
+
+
+gg_pressure_wind_count +
+  geom_smooth(
+    span = 1.0
+  ) +
+  labs(
+    title = "Steady Smoothing"
+  )
+
+```
+
+```{r}
+#| echo: false
+
+library(stringr)
+
+gg_hist_bins <- function(n_bins) {
+  ggplot(iris, aes(x = .data$Sepal.Length)) + # lintr requires .data
+    geom_histogram(bins = n_bins) +
+    labs(
+      x = "Sepal Length (cm)",
+      y = "Count", 
+      title = str_c("Histogram Using ", n_bins, " Bins"),
+      caption = "Source: Anderson (1935)"
+    )
+}
+
+gg_color_hist <- function(n_bins, arg_fill = NA, arg_color = "black") {
+  ggplot(iris, aes(x = .data$Sepal.Length)) +
+    geom_histogram(bins = n_bins, fill = arg_fill, color = arg_color) +
+    labs(
+      x = "Sepal Length (cm)",
+      y = "Count", 
+      title = str_c("Histogram Using ", n_bins, " Bins"),
+      caption = "Source: Anderson (1935)"
+    )
+}
+
+gg_freqpoly_bins <- function(n_bins) {
+  ggplot(iris, aes(x = .data$Sepal.Length)) +
+    geom_freqpoly(bins = n_bins, color = "darkblue") +
+    labs(
+      x = "Sepal Length (cm)",
+      y = "Count", 
+      title = str_c(
+        "Frequency Polygon Using ", 
+        n_bins, 
+        "Bins"
+      ),
+      caption = "Source: Anderson (1935)"
+    )
+}
+
+gg_hist_bins(20)
+gg_hist_bins(40)
+
+gg_color_hist(20)
+gg_color_hist(
+  40, 
+  arg_fill = "yellow",
+  arg_color = "darkblue"
+)
+
+gg_freqpoly_bins(20)
+gg_freqpoly_bins(40)
+
+ggplot(iris, aes(Sepal.Length)) +
+  geom_density() +
+  geom_rug(
+    aes(y = 0),
+    position = position_jitter(height = 0),
+    alpha = 0.5,
+    sides = "b"
+  ) +
+  labs(title = "Smoothed Estimate (Adjust = 1)")
+
+# after_stat(density), after_stat(count)
+ggplot(iris, aes(Sepal.Length)) +
+  geom_histogram(aes(y = after_stat(density)), bins = 20, fill = NA, color = "gray25") +
+  geom_density(color = "darkblue", linewidth = 1.5) +
+  geom_rug(
+    aes(y = 0),
+    position = position_jitter(height = 0),
+    alpha = 0.5,
+    sides = "b" # "b" for bottom
+  ) +
+  labs(title = "Smoothed Estimate (Adjust = 1)")
+
+ggplot(iris, aes(Sepal.Length)) +
+  geom_histogram(aes(y = after_stat(density)), bins = 20, fill = NA, color = "gray25") +
+  geom_density(adjust = 0.5, color = "darkblue", linewidth = 1.5) +
+  geom_rug(
+    aes(y = 0),
+    position = position_jitter(height = 0),
+    alpha = 0.5,
+    sides = "b"
+  ) +
+  labs(title = "Smoothed Estimate (Adjust = 0.5)")
+
+ggplot(iris, aes(Sepal.Length)) +
+  geom_histogram(aes(y = after_stat(density)), bins = 20, fill = NA, color = "gray25") +
+  geom_density(adjust = 1.5, color = "darkblue", linewidth = 1.5) +
+  geom_rug(
+    aes(y = 0),
+    position = position_jitter(height = 0),
+    alpha = 0.5,
+    sides = "b"
+  ) +
+  labs(title = "Smoothed Estimate (Adjust = 1.5)")
+```
+
+```{r}
+#| echo: false
+
+set.seed(0)
+values <- rnorm(n = 1000)
+dfr_norm <- data.frame(values)
+rm(values)
+
+ggplot(dfr_norm, aes(x = values)) +
+  geom_histogram(bins = 50, fill = NA, color = "darkblue") +
+  labs(title = "Histogram of Samples from Normal Distribution") 
+
+
+IQR <- IQR(dfr_norm$values)
+quantiles <- quantile(dfr_norm$values, c(0.25, 0.50, 0.75)) |> t() |> round(4) |> data.frame()
+colnames(quantiles) <- c("0.25", "0.50", "0.75")
+
+min_include_outliers <- min(dfr_norm$values) |> round(4)
+min_exclude_outliers <- (quantile(dfr_norm$values, 0.25) - 1.5 * IQR)[["25%"]] |> round(4)
+max_exclude_outliers <- (quantile(dfr_norm$values, 0.75) + 1.5 * IQR)[["75%"]] |> round(4)
+max_include_outliers <- max(dfr_norm$values) |> round(4)
+
+quantiles <- quantiles |>
+  add_column(.before = "0.25", "min\\outliers" = min_exclude_outliers) |>
+  add_column(.before = "min\\outliers", "min" = min_include_outliers) |>
+  add_column(.after = "0.75", "max\\outliers" = max_exclude_outliers) |>
+  add_column(.after = "max\\outliers", "max" = max_include_outliers)
+quantiles |> gt()
+
+
+ggplot(dfr_norm, aes(x = values)) +
+  geom_boxplot(fill = "lightyellow", color = "darkblue") +
+  labs(title = "Box Plot of Samples from Normal Distribution")
+
+ggplot(iris, aes(Sepal.Length)) +
+  geom_histogram(aes(y = after_stat(density), fill = "Histogram"), bins = 20, color = "black", show.legend = TRUE) +
+  geom_freqpoly(aes(y = after_stat(density), color = "Frequency Polygon"), bins = 20, linewidth = 1.2, show.legend = TRUE) +
+  geom_density(aes(color = "Density"), adjust = 0.5, linewidth = 1.2, show.legend = TRUE) +
+  geom_boxplot(aes(y = -0.02, fill = "Boxplot"), width = 0.02, show.legend = TRUE) +
+  geom_rug(aes(y = 0, color = "Rug"), position = position_jitter(height = 0), alpha = 0.5, sides = "b", show.legend = TRUE) +
+  labs(title = "Combined Plot") +
+  scale_fill_manual(name = "Color Legend", values = c("Histogram" = "lightyellow", "Boxplot" = "lightblue")) +
+  scale_color_manual(name = "Fill Legend", values = c("Frequency Polygon" = "brown", "Density" = "darkblue", "Rug" = "darkgreen"))
+```
+
+```{r}
+#|echo: false
+
+ggplot(iris, aes(Sepal.Length, fill = Species)) +
+  geom_histogram(bins = 20, color = "gray") +
+  labs(
+      x = "Sepal Length (cm)",
+      y = "Count", 
+      title = "Stacked Histogram. Source: Anderson (1935)."
+    )
+
+ggplot(iris, aes(Sepal.Length, fill = Species)) +
+  geom_histogram(bins = 20, position = "dodge") +
+  labs(
+      x = "Sepal Length (cm)",
+      y = "Count", 
+      title = "Stacked Histogram. Source: Anderson (1935)."
+    )
+
+ggplot(iris, aes(Sepal.Length, fill = Species)) +
+  geom_histogram(bins = 20, fill = NA, color = "gray") +
+  geom_histogram(bins = 20, position = "dodge") +
+  labs(
+      x = "Sepal Length (cm)",
+      y = "Count", 
+      title = "Stacked Histogram. Source: Anderson (1935)."
+    )
+
+ggplot(iris, aes(Sepal.Length)) +
+  geom_histogram(bins = 20, fill = NA, color = "black") +
+  facet_wrap(vars(Species), ncol = 1) +
+  labs(
+      x = "Sepal Length (cm)",
+      y = "Count", 
+      title = "Faceted Histogram. Source: Anderson (1935)."
+  )
+
+ggplot(iris, aes(Sepal.Length)) +
+  geom_histogram(bins = 20, fill = NA, color = "black") +
+  geom_rug(
+    aes(y = 0),
+    position = position_jitter(height = 0),
+    alpha = 0.5,
+    sides = "b"
+  ) +
+  facet_wrap(vars(Species), ncol = 1) +
+  labs(
+      x = "Sepal Length (cm)",
+      y = "Count", 
+      title = "Faceted Histogram with Rug Plot. Source: Anderson (1935)."
+  )
+
+ggplot(iris, aes(.data$Sepal.Length, color = Species)) +
+    geom_freqpoly(bins = 20) +
+    geom_rug(aes(y = 0), position = position_jitter(height = 0), alpha = 0.5, sides = "b") +
+    labs(x = "Sepal Length (cm)", y = "Count")
+
+ggplot(iris, aes(.data$Sepal.Length, color = Species)) +
+  geom_density(adjust = 0.5) +
+  geom_rug(aes(y = 0), position = position_jitter(height = 0), alpha = 0.5, sides = "b") +
+  labs(x = "Sepal Length (cm)", y = "Density")
+
+ggplot(iris, aes(Sepal.Length)) +
+  geom_freqpoly(bins = 20) +
+  facet_wrap(vars(Species), ncol = 1) +
+  geom_rug(aes(y = 0), position = position_jitter(height = 0), alpha = 0.5, sides = "b") +
+  geom_vline(aes(xintercept = mean(Sepal.Length)), color = "red", linetype = "dashed") +
+  labs(x = "Sepal Length (cm)", y = "Count")
+
+ggplot(iris, aes(Sepal.Length)) +
+  geom_density() +
+  facet_wrap(vars(Species), ncol = 1) +
+  geom_rug(aes(y = 0), position = position_jitter(height = 0), alpha = 0.5, sides = "b") +
+  geom_vline(aes(xintercept = mean(Sepal.Length)), color = "red", linetype = "dashed") +
+  labs(x = "Sepal Length (cm)", y = "Density")
+
+ggplot(iris, aes(Sepal.Length)) +
+  geom_boxplot(aes(fill = Species)) +
+  # remove y axis labels
+  scale_y_continuous(breaks = NULL)
+
+ggplot(iris, aes(Sepal.Length, Species)) +
+  geom_boxplot()
+
+ggplot(iris, aes(Sepal.Length, Species)) +
+  geom_violin()
+
+ggplot(iris, aes(Sepal.Length, Species)) +
+  geom_violin() +
+  geom_boxplot(aes(fill = Species), width = 0.2)
+```
